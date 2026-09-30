@@ -1,0 +1,6 @@
+# Match everything
+*
+# Keep all files that have a dot (extensions)
+!*.*
+# Keep all directories so Git can look inside them
+!*/
