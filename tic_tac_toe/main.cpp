@@ -1,23 +1,26 @@
 #include <iostream>
+#include <array>
 #include <vector>
 #include <string>
 #include <cstdlib>
 #include <stdexcept>
 
-void printBoard(const std::vector<std::vector<std::string>> &board)
+using Board = std::array<std::array<char, 3>, 3>;
+
+void printBoard(const Board &board)
 {
     // clear the console
-    std::cout << "\033[2J"; // clear the console
+    std::cout << "\033[2J\033[H";
 
     std::cout << ".---.---.---." << std::endl;
-    for (const std::vector<std::string> &row : board)
+    for (const std::array<char, 3> &row : board)
     {
         std::cout << "| " << row[0] << " | " << row[1] << " | " << row[2] << " |" << std::endl;
         std::cout << ".---.---.---." << std::endl;
     }
 }
 
-void playerInteraction(int turn, std::vector<std::vector<std::string>> &board)
+bool playerInteraction(int turn, Board &board)
 {
     std::string userInput;
 
@@ -30,7 +33,7 @@ void playerInteraction(int turn, std::vector<std::vector<std::string>> &board)
 
         if (userInput == "q")
         {
-            exit(0);
+            return false;
         }
         int row, col;
 
@@ -45,56 +48,46 @@ void playerInteraction(int turn, std::vector<std::vector<std::string>> &board)
                 continue;
             }
 
-            if (board[row][col] != " ")
+            if (board[row][col] != ' ')
             {
                 std::cout << "Invalid move. Cell is already occupied." << std::endl;
                 continue;
             }
 
-            board[row][col] = turn % 2 == 0 ? "X" : "O";
+            board[row][col] = turn % 2 == 0 ? 'X' : 'O';
             printBoard(board);
         }
         catch (const std::invalid_argument &e)
         {
             std::cout << "Invalid input. Please enter row and column as numbers." << std::endl;
+            continue;
         }
         break;
     }
+    return true;
 }
 
-void checkWinner(const std::vector<std::vector<std::string>> &board)
+bool checkWinner(const Board &board)
 {
     // Check rows and columns
     for (int i = 0; i < 3; ++i)
     {
-        if (board[i][0] != " " && board[i][0] == board[i][1] && board[i][1] == board[i][2])
-        {
-            std::cout << "Player " << (board[i][0] == "X" ? 1 : 2) << " wins!" << std::endl;
-            exit(0);
-        }
-        if (board[0][i] != " " && board[0][i] == board[1][i] && board[1][i] == board[2][i])
-        {
-            std::cout << "Player " << (board[0][i] == "X" ? 1 : 2) << " wins!" << std::endl;
-            exit(0);
-        }
+        if (board[i][0] != ' ' && board[i][0] == board[i][1] && board[i][1] == board[i][2])
+            return true;
+
+        if (board[0][i] != ' ' && board[0][i] == board[1][i] && board[1][i] == board[2][i])
+            return true;
     }
 
     // Check diagonals
-    if (board[0][0] != " " && board[0][0] == board[1][1] && board[1][1] == board[2][2])
-    {
-        std::cout << "Player " << (board[0][0] == "X" ? 1 : 2) << " wins!" << std::endl;
-        exit(0);
-    }
-    if (board[0][2] != " " && board[0][2] == board[1][1] && board[1][1] == board[2][0])
-    {
-        std::cout << "Player " << (board[0][2] == "X" ? 1 : 2) << " wins!" << std::endl;
-        exit(0);
-    }
+    return (board[0][0] != ' ' && board[0][0] == board[1][1] && board[1][1] == board[2][2]) ||
+
+           (board[0][2] != ' ' && board[0][2] == board[1][1] && board[1][1] == board[2][0]);
 }
 
 int main()
 {
-    std::vector<std::vector<std::string>> board(3, std::vector<std::string>(3, " "));
+    Board board = {{{' ', ' ', ' '}, {' ', ' ', ' '}, {' ', ' ', ' '}}};
     printBoard(board);
 
     std::cout << "Welcome to Tic Tac Toe!" << std::endl;
@@ -103,8 +96,15 @@ int main()
     int turn = 9;
     while (turn--)
     {
-        playerInteraction(turn, board);
-        checkWinner(board);
+        if (!playerInteraction(turn, board))
+        {
+            exit(0);
+        }
+        if (checkWinner(board))
+        {
+            std::cout << "Game over! Player " << (turn % 2 == 0 ? 2 : 1) << " wins!" << std::endl;
+            exit(0);
+        }
     }
 
     std::cout << "Game over! It's a draw!" << std::endl;
