@@ -1,8 +1,6 @@
 #include <iostream>
 #include <array>
-#include <vector>
 #include <string>
-#include <cstdlib>
 #include <stdexcept>
 
 using Board = std::array<std::array<char, 3>, 3>;
@@ -20,11 +18,11 @@ void printBoard(const Board &board)
     }
 }
 
-bool playerInteraction(int turn, Board &board)
+bool playerInteraction(char player, Board &board)
 {
     std::string userInput;
 
-    std::cout << "Player " << turn % 2 + 1 << " (" << (turn % 2 == 0 ? "X" : "O") << ") turn." << std::endl;
+    std::cout << "Player " << player << " turn." << std::endl;
 
     while (true)
     {
@@ -54,7 +52,7 @@ bool playerInteraction(int turn, Board &board)
                 continue;
             }
 
-            board[row][col] = turn % 2 == 0 ? 'X' : 'O';
+            board[row][col] = player;
             printBoard(board);
         }
         catch (const std::invalid_argument &e)
@@ -96,13 +94,14 @@ int main()
     int turn = 9;
     while (turn--)
     {
-        if (!playerInteraction(turn, board))
+        char player = turn % 2 == 0 ? 'X' : 'O';
+        if (!playerInteraction(player, board))
         {
             exit(0);
         }
         if (checkWinner(board))
         {
-            std::cout << "Game over! Player " << (turn % 2 == 0 ? 2 : 1) << " wins!" << std::endl;
+            std::cout << "Game over! Player " << player << " wins!" << std::endl;
             exit(0);
         }
     }
