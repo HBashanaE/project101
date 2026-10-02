@@ -1,5 +1,8 @@
 #include <iostream>
-#include <iomanip>
+#include <vector>
+#include <string>
+#include <cstdlib>
+#include <stdexcept>
 
 void printBoard(const std::vector<std::vector<std::string>> &board)
 {
